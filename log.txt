@@ -1,0 +1,28 @@
+июл. 19, 2021 6:15:44 PM test.ParseHTML main
+INFO: Начало работы парсера (запуск приложения)
+июл. 19, 2021 6:15:54 PM test.ParseHTML scan_url
+INFO: Парсинг URL (https://google.com/) 
+июл. 19, 2021 6:15:54 PM test.ParseHTML parse
+INFO: Конец работы парсера (остановка приложения)
+июл. 19, 2021 6:16:04 PM test.ParseHTML main
+INFO: Начало работы парсера (запуск приложения)
+июл. 19, 2021 6:16:13 PM test.ParseHTML scan_url
+WARNING: Неверный адрес URL (test text) 
+июл. 19, 2021 6:16:13 PM test.ParseHTML scan_url
+INFO: Парсинг URL (https://www.simbirsoft.com/) 
+июл. 19, 2021 6:16:14 PM test.ParseHTML parse
+INFO: Конец работы парсера (остановка приложения)
+июл. 19, 2021 6:32:00 PM test.ParseHTML main
+INFO: Начало работы парсера (запуск приложения)
+июл. 19, 2021 6:32:31 PM test.ParseHTML scan_url
+WARNING: Неверный адрес URL () 
+июл. 19, 2021 6:32:31 PM test.ParseHTML scan_url
+INFO: Парсинг URL (https://www.simbirsoft.com/) 
+июл. 19, 2021 6:32:32 PM test.ParseHTML parse
+INFO: Конец работы парсера (остановка приложения)
+июл. 19, 2021 6:33:51 PM test.ParseHTML main
+INFO: Начало работы парсера (запуск приложения)
+июл. 19, 2021 6:34:03 PM test.ParseHTML scan_url
+INFO: Парсинг URL (https://google.com/) 
+июл. 19, 2021 6:34:04 PM test.ParseHTML parse
+INFO: Конец работы парсера (остановка приложения)

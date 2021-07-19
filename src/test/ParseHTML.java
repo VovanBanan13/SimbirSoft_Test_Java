@@ -3,19 +3,18 @@ package test;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 
-import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
+import java.util.logging.*;
 
 public class ParseHTML {
     public static void main(String[] args) throws IOException {
         System.out.println("\n Парсинг HTML-страницы ");
+        LOGGER.log(Level.INFO,"Начало работы парсера (запуск приложения)");
         // System.out.println("\n URL-адрес: " + scan_url());
         parse();
     }
@@ -31,12 +30,15 @@ public class ParseHTML {
         } catch (MalformedURLException e) {
             System.out.println("\n Неверный адрес URL, будет парсинг шаблонной HTML-страницы ");
             System.out.println("\n  https://www.simbirsoft.com/");
+            LOGGER.log(Level.WARNING,"Неверный адрес URL (" + url_name + ") ");
             url_name = "https://www.simbirsoft.com/";
         } catch (IOException e) {
             System.out.println("\n Не удалось установить соединение, будет парсинг шаблонной HTML-страницы ");
             System.out.println("\n  https://www.simbirsoft.com/");
+            LOGGER.log(Level.WARNING,"Не удалось установить соединение (" + url_name + ") ");
             url_name = "https://www.simbirsoft.com/";
         } finally {
+            LOGGER.log(Level.INFO,"Парсинг URL (" + url_name + ") ");
             return url_name;
         }
     }
@@ -93,10 +95,22 @@ public class ParseHTML {
         for (Item item : wordsMap.values()) {
             System.out.println(item.word + " - " + item.count);
         }
+        LOGGER.log(Level.INFO,"Конец работы парсера (остановка приложения)");
     }
 
     public static class Item  {
         String word;
         int count;
+    }
+
+    static Logger LOGGER;
+    static {
+        //try (FileInputStream ins = new FileInputStream("D:\\Project_Test_Java\\log.config")) {
+        try (FileInputStream ins = new FileInputStream("src\\test\\log.config")) {
+            LogManager.getLogManager().readConfiguration(ins);
+            LOGGER = Logger.getLogger(Main.class.getName());
+        } catch (Exception ignore) {
+            ignore.printStackTrace();
+        }
     }
 }
