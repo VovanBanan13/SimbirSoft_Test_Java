@@ -11,17 +11,29 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 
-public class Main {
+public class Second {
+    public static void main(String[] args) throws IOException {
+        System.out.println("\n Парсинг HTML-страницы ");
+        // System.out.println("\n URL-адрес: " + scan_url());
+        parse();
+    }
+
+    public static String scan_url() {
+        System.out.println("\n Введите адрес HTML-страницы: ");
+        Scanner scanner = new Scanner(System.in);
+        String url_name = scanner.nextLine();
+        return url_name;
+    }
+
     public static Document getPage() throws IOException {
         //String url = "https://www.simbirsoft.com/";
-        String url = "https://materialcalc.herokuapp.com/";
+        String url = scan_url();
         Document page = Jsoup.parse(new URL(url), 3000);
         return page;
     }
 
-    public static void main(String[] args) throws IOException {
+    public static void parse() throws IOException {
         ArrayList<String> listOfSeparators = new ArrayList<String>();
-//        listOfSeparators(" ", ",", ".", "!", "?", "(", ")", "[", "]", ":", ";", "\n", "\r", "\t");
         listOfSeparators.add(" ");
         listOfSeparators.add(",");
         listOfSeparators.add(".");
@@ -36,7 +48,6 @@ public class Main {
         listOfSeparators.add("\n");
         listOfSeparators.add("\r");
         listOfSeparators.add("\t");
-        //System.out.println(getPage());
 
         String pageText = getPage().text();
         String separatorsString = String.join("|\\", listOfSeparators);
@@ -63,7 +74,6 @@ public class Main {
         }
         reader.close();
 
-        System.out.println("\n Парсинг HTML-страницы ");
         System.out.println("\n Статистика по количеству уникальных слов: \n");
         for (Item item : wordsMap.values()) {
             System.out.println(item.word + " - " + item.count);
