@@ -7,28 +7,44 @@ import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLConnection;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 
-public class Second {
+public class ParseHTML {
     public static void main(String[] args) throws IOException {
         System.out.println("\n Парсинг HTML-страницы ");
         // System.out.println("\n URL-адрес: " + scan_url());
         parse();
     }
 
-    public static String scan_url() {
+    public static String scan_url() throws IOException {
         System.out.println("\n Введите адрес HTML-страницы: ");
         Scanner scanner = new Scanner(System.in);
         String url_name = scanner.nextLine();
-        return url_name;
+        try {
+            URL url = new URL(url_name);
+            URLConnection conn = url.openConnection();
+            ((URLConnection) conn).connect();
+        } catch (MalformedURLException e) {
+            System.out.println("\n Неверный адрес URL, будет парсинг шаблонной HTML-страницы ");
+            System.out.println("\n  https://www.simbirsoft.com/");
+            url_name = "https://www.simbirsoft.com/";
+        } catch (IOException e) {
+            System.out.println("\n Не удалось установить соединение, будет парсинг шаблонной HTML-страницы ");
+            System.out.println("\n  https://www.simbirsoft.com/");
+            url_name = "https://www.simbirsoft.com/";
+        } finally {
+            return url_name;
+        }
     }
 
-    public static Document getPage() throws IOException {
+    public static Document getPage(String url) throws IOException {
         //String url = "https://www.simbirsoft.com/";
-        String url = scan_url();
-        Document page = Jsoup.parse(new URL(url), 3000);
+        //url = scan_url();
+        Document page = Jsoup.parse(new URL(url), 5000);
         return page;
     }
 
@@ -49,7 +65,7 @@ public class Second {
         listOfSeparators.add("\r");
         listOfSeparators.add("\t");
 
-        String pageText = getPage().text();
+        String pageText = getPage(scan_url()).text();
         String separatorsString = String.join("|\\", listOfSeparators);
         Map<String, Item> wordsMap = new HashMap<String, Item>();
 
@@ -73,7 +89,6 @@ public class Second {
             }
         }
         reader.close();
-
         System.out.println("\n Статистика по количеству уникальных слов: \n");
         for (Item item : wordsMap.values()) {
             System.out.println(item.word + " - " + item.count);
