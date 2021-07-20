@@ -5,9 +5,11 @@ import org.jsoup.nodes.Document;
 
 import java.io.*;
 import java.net.MalformedURLException;
+import java.net.SocketTimeoutException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.nio.charset.StandardCharsets;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.logging.*;
 
@@ -15,8 +17,7 @@ public class ParseHTML {
     public static void main(String[] args) throws IOException {
         System.out.println("\n Парсинг HTML-страницы ");
         LOGGER.log(Level.INFO,"Начало работы парсера (запуск приложения)");
-        // System.out.println("\n URL-адрес: " + scan_url());
-        parse();
+        parse(scan_url());
     }
 
     public static String scan_url() throws IOException {
@@ -26,7 +27,7 @@ public class ParseHTML {
         try {
             URL url = new URL(url_name);
             URLConnection conn = url.openConnection();
-            ((URLConnection) conn).connect();
+            conn.connect();
         } catch (MalformedURLException e) {
             System.out.println("\n Неверный адрес URL, будет парсинг шаблонной HTML-страницы ");
             System.out.println("\n  https://www.simbirsoft.com/");
@@ -44,58 +45,83 @@ public class ParseHTML {
     }
 
     public static Document getPage(String url) throws IOException {
-        //String url = "https://www.simbirsoft.com/";
-        //url = scan_url();
-        Document page = Jsoup.parse(new URL(url), 5000);
-        return page;
+        // String url = "https://www.simbirsoft.com/";
+        // url = scan_url();
+        try {
+            Document page = Jsoup.parse(new URL(url), 5000);
+            return page;
+        } catch (SocketTimeoutException e)
+        {
+            System.out.println("\n Вышло время ожидания запроса к URL-адресу, повторите попытку снова ");
+            LOGGER.log(Level.WARNING,"Вышло время ожидания (" + url + ") ");
+        }
+        return null;
     }
 
-    public static void parse() throws IOException {
-        ArrayList<String> listOfSeparators = new ArrayList<String>();
-        listOfSeparators.add(" ");
-        listOfSeparators.add(",");
-        listOfSeparators.add(".");
-        listOfSeparators.add("!");
-        listOfSeparators.add("?");
-        listOfSeparators.add("(");
-        listOfSeparators.add(")");
-        listOfSeparators.add("[");
-        listOfSeparators.add("]");
-        listOfSeparators.add(";");
-        listOfSeparators.add(":");
-        listOfSeparators.add("\n");
-        listOfSeparators.add("\r");
-        listOfSeparators.add("\t");
+    public static void parse(String url) throws IOException {
+        try {
+            ArrayList<String> listOfSeparators = new ArrayList<>();
+            listOfSeparators.add(" ");
+            listOfSeparators.add(",");
+            listOfSeparators.add(".");
+            listOfSeparators.add("!");
+            listOfSeparators.add("?");
+            listOfSeparators.add("(");
+            listOfSeparators.add(")");
+            listOfSeparators.add("[");
+            listOfSeparators.add("]");
+            listOfSeparators.add(";");
+            listOfSeparators.add(":");
+            listOfSeparators.add("«");
+            listOfSeparators.add("»");
+            listOfSeparators.add("—");
+            listOfSeparators.add("/");
+            listOfSeparators.add("\"");
+            listOfSeparators.add("\n");
+            listOfSeparators.add("\r");
+            listOfSeparators.add("\t");
 
-        String pageText = getPage(scan_url()).text();
-        String separatorsString = String.join("|\\", listOfSeparators);
-        Map<String, Item> wordsMap = new HashMap<String, Item>();
+            String pageText = getPage(url).text();
+            String separatorsString = String.join("|\\", listOfSeparators);
+            Map<String, Item> wordsMap = new HashMap<String, Item>();
 
-        BufferedReader reader = new BufferedReader(new InputStreamReader(new ByteArrayInputStream(pageText.getBytes(StandardCharsets.UTF_8))));
-        String line;
-        while ((line = reader.readLine()) != null) {
-            String[] words = line.split(separatorsString);
-            for (String word : words) {
-                if ("".equals(word)){
-                    continue;
+            BufferedReader reader = new BufferedReader(new InputStreamReader(new ByteArrayInputStream(pageText.getBytes(StandardCharsets.UTF_8))));
+            String line;
+            while ((line = reader.readLine()) != null) {
+                String[] words = line.split(separatorsString);
+                for (String word : words) {
+                    if ("".equals(word)) {
+                        continue;
+                    }
+
+                    Item item = wordsMap.get(word);
+                    if (item == null) {
+                        item = new Item();
+                        item.word = word;
+                        item.count = 0;
+                        wordsMap.put(word, item);
+                    }
+                    item.count++;
                 }
-
-                Item item = wordsMap.get(word);
-                if (item == null) {
-                    item = new Item();
-                    item.word = word;
-                    item.count = 0;
-                    wordsMap.put(word, item);
-                }
-                item.count++;
             }
+            reader.close();
+            System.out.println("\n Статистика по количеству уникальных слов: \n");
+            for (Item item : wordsMap.values()) {
+                System.out.println(item.word + " - " + item.count);
+            }
+            FileWriter out_file = new FileWriter("statistic.txt", true);
+            Date date = new Date();
+            SimpleDateFormat formatDate = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
+            out_file.append(formatDate.format(date));
+            out_file.append(" — парсинг: " + url);
+            out_file.append(" — количество уникальных слов: " + wordsMap.size() + "\n");
+            out_file.close();
+            LOGGER.log(Level.INFO, "Конец работы парсера (остановка приложения) \n");
+        } catch (NullPointerException e)
+        {
+            System.out.println("\n Не получен URL-адрес, повторите попытку снова ");
+            LOGGER.log(Level.WARNING,"Не получен URL-адрес (" + url + ") ");
         }
-        reader.close();
-        System.out.println("\n Статистика по количеству уникальных слов: \n");
-        for (Item item : wordsMap.values()) {
-            System.out.println(item.word + " - " + item.count);
-        }
-        LOGGER.log(Level.INFO,"Конец работы парсера (остановка приложения)");
     }
 
     public static class Item  {
