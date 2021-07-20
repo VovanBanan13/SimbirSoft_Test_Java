@@ -15,3 +15,10 @@ INFO: Парсинг URL (https://google.com/)
 июл. 20, 2021 12:38:39 PM test.ParseHTML parse
 INFO: Конец работы парсера (остановка приложения) 
 
+июл. 20, 2021 12:51:53 PM test.ParseHTML main
+INFO: Начало работы парсера (запуск приложения)
+июл. 20, 2021 12:52:09 PM test.ParseHTML scan_url
+INFO: Парсинг URL (https://google.com/) 
+июл. 20, 2021 12:52:10 PM test.ParseHTML parse
+INFO: Конец работы парсера (остановка приложения) 
+

@@ -134,7 +134,7 @@ public class ParseHTML {
         //try (FileInputStream ins = new FileInputStream("D:\\Project_Test_Java\\log.config")) {
         try (FileInputStream ins = new FileInputStream("src\\test\\log.config")) {
             LogManager.getLogManager().readConfiguration(ins);
-            LOGGER = Logger.getLogger(Main.class.getName());
+            LOGGER = Logger.getLogger(ParseHTML.class.getName());
         } catch (Exception ignore) {
             ignore.printStackTrace();
         }
