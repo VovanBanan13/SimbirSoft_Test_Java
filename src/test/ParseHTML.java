@@ -81,7 +81,7 @@ public class ParseHTML {
             listOfSeparators.add("\r");
             listOfSeparators.add("\t");
 
-            String pageText = getPage(url).text();
+            String pageText = getPage(url).text().toUpperCase();
             String separatorsString = String.join("|\\", listOfSeparators);
             Map<String, Item> wordsMap = new HashMap<String, Item>();
 
@@ -105,10 +105,15 @@ public class ParseHTML {
                 }
             }
             reader.close();
-            System.out.println("\n Статистика по количеству уникальных слов: \n");
-            for (Item item : wordsMap.values()) {
-                System.out.println(item.word + " - " + item.count);
-            }
+
+            sortByABC(wordsMap);
+            sortByCount(wordsMap);
+
+//            System.out.println("\n Статистика по количеству уникальных слов: \n");
+//            for (Item item : wordsMap.values()) {
+//                System.out.println(item.word + " - " + item.count);
+//            }
+
             FileWriter out_file = new FileWriter("statistic.txt", true);
             Date date = new Date();
             SimpleDateFormat formatDate = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
@@ -122,6 +127,26 @@ public class ParseHTML {
             System.out.println("\n Не получен URL-адрес, повторите попытку снова ");
             LOGGER.log(Level.WARNING,"Не получен URL-адрес (" + url + ") ");
         }
+    }
+
+    public static void sortByABC(Map map){
+        System.out.println("\n Статистика по количеству уникальных слов (сортировка по алфавиту): \n");
+        TreeMap<String, Item> sort = new TreeMap<>();
+        sort.putAll(map);
+        for (Map.Entry<String, Item> entry : sort.entrySet())
+            System.out.println(entry.getKey() + " - " + entry.getValue().count);
+    }
+
+    public static void sortByCount(Map map){
+        System.out.println("\n Статистика по количеству уникальных слов (сортировка по количеству): \n");
+        List<Map.Entry<String, Item>> sorted = new LinkedList<Map.Entry<String, Item>>(map.entrySet());
+        Collections.sort(sorted, new Comparator<Map.Entry<String, Item>>() {
+            public int compare(Map.Entry<String, Item> a, Map.Entry<String, Item> b) {
+                return ( b.getValue().count - a.getValue().count );
+            }
+        });
+        for ( Map.Entry<String, Item> sort : sorted )
+            System.out.println(sort.getKey() + " - " + sort.getValue().count);
     }
 
     public static class Item  {
