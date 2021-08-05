@@ -20,7 +20,7 @@ public class ParseHTML {
         parse(scan_url());
     }
 
-    public static String scan_url() throws IOException {
+    public static String scan_url() {
         System.out.println("\n Введите адрес HTML-страницы: ");
         Scanner scanner = new Scanner(System.in);
         String url_name = scanner.nextLine();
@@ -28,62 +28,36 @@ public class ParseHTML {
             URL url = new URL(url_name);
             URLConnection conn = url.openConnection();
             conn.connect();
-        } catch (MalformedURLException e) {
-            System.out.println("\n Неверный адрес URL, будет парсинг шаблонной HTML-страницы ");
-            System.out.println("\n  https://www.simbirsoft.com/");
-            LOGGER.log(Level.WARNING,"Неверный адрес URL (" + url_name + ") ");
-            url_name = "https://www.simbirsoft.com/";
-        } catch (IOException e) {
-            System.out.println("\n Не удалось установить соединение, будет парсинг шаблонной HTML-страницы ");
-            System.out.println("\n  https://www.simbirsoft.com/");
-            LOGGER.log(Level.WARNING,"Не удалось установить соединение (" + url_name + ") ");
-            url_name = "https://www.simbirsoft.com/";
-        } finally {
-            LOGGER.log(Level.INFO,"Парсинг URL (" + url_name + ") ");
+            LOGGER.log(Level.INFO, "Парсинг URL (" + url_name + ") ");
             return url_name;
+        } catch (MalformedURLException e) {
+            System.out.println("\n Неверный адрес URL ");
+            LOGGER.log(Level.WARNING, "Неверный адрес URL (" + url_name + ") ");
+        } catch (IOException e) {
+            System.out.println("\n Не удалось установить соединение ");
+            LOGGER.log(Level.WARNING, "Не удалось установить соединение (" + url_name + ") ");
         }
+        return scan_url();
     }
 
     public static Document getPage(String url) throws IOException {
-        // String url = "https://www.simbirsoft.com/";
-        // url = scan_url();
         try {
-            Document page = Jsoup.parse(new URL(url), 5000);
-            return page;
+            return Jsoup.parse(new URL(url), 5000);
         } catch (SocketTimeoutException e)
         {
-            System.out.println("\n Вышло время ожидания запроса к URL-адресу, повторите попытку снова ");
+            System.out.println("\n Вышло время ожидания запроса к URL-адресу, производится повторный запрос ... ");
             LOGGER.log(Level.WARNING,"Вышло время ожидания (" + url + ") ");
         }
-        return null;
+        return getPage(url);
     }
 
     public static void parse(String url) throws IOException {
         try {
-            ArrayList<String> listOfSeparators = new ArrayList<>();
-            listOfSeparators.add(" ");
-            listOfSeparators.add(",");
-            listOfSeparators.add(".");
-            listOfSeparators.add("!");
-            listOfSeparators.add("?");
-            listOfSeparators.add("(");
-            listOfSeparators.add(")");
-            listOfSeparators.add("[");
-            listOfSeparators.add("]");
-            listOfSeparators.add(";");
-            listOfSeparators.add(":");
-            listOfSeparators.add("«");
-            listOfSeparators.add("»");
-            listOfSeparators.add("—");
-            listOfSeparators.add("/");
-            listOfSeparators.add("\"");
-            listOfSeparators.add("\n");
-            listOfSeparators.add("\r");
-            listOfSeparators.add("\t");
+            String[] listOfSeparators = {" ", ",", ".", "!", "?", "(", ")", "[", "]", ";", ":", "«", "»", "—", "/", "\"", "\n", "\r", "\t"};
 
             String pageText = getPage(url).text().toUpperCase();
             String separatorsString = String.join("|\\", listOfSeparators);
-            Map<String, Item> wordsMap = new HashMap<String, Item>();
+            Map<String, Item> wordsMap = new HashMap<>();
 
             BufferedReader reader = new BufferedReader(new InputStreamReader(new ByteArrayInputStream(pageText.getBytes(StandardCharsets.UTF_8))));
             String line;
@@ -131,8 +105,7 @@ public class ParseHTML {
 
     public static void sortByABC(Map map){
         System.out.println("\n Статистика по количеству уникальных слов (сортировка по алфавиту): \n");
-        TreeMap<String, Item> sort = new TreeMap<>();
-        sort.putAll(map);
+        TreeMap<String, Item> sort = new TreeMap<>(map);
         for (Map.Entry<String, Item> entry : sort.entrySet())
             System.out.println(entry.getKey() + " - " + entry.getValue().count);
     }
@@ -140,11 +113,7 @@ public class ParseHTML {
     public static void sortByCount(Map map){
         System.out.println("\n Статистика по количеству уникальных слов (сортировка по количеству): \n");
         List<Map.Entry<String, Item>> sorted = new LinkedList<Map.Entry<String, Item>>(map.entrySet());
-        Collections.sort(sorted, new Comparator<Map.Entry<String, Item>>() {
-            public int compare(Map.Entry<String, Item> a, Map.Entry<String, Item> b) {
-                return ( b.getValue().count - a.getValue().count );
-            }
-        });
+        sorted.sort((a, b) -> (b.getValue().count - a.getValue().count));
         for ( Map.Entry<String, Item> sort : sorted )
             System.out.println(sort.getKey() + " - " + sort.getValue().count);
     }
@@ -156,12 +125,11 @@ public class ParseHTML {
 
     static Logger LOGGER;
     static {
-        //try (FileInputStream ins = new FileInputStream("D:\\Project_Test_Java\\log.config")) {
         try (FileInputStream ins = new FileInputStream("src\\main\\java\\test\\log.config")) {
             LogManager.getLogManager().readConfiguration(ins);
             LOGGER = Logger.getLogger(ParseHTML.class.getName());
-        } catch (Exception ignore) {
-            ignore.printStackTrace();
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 }
