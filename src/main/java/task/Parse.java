@@ -16,7 +16,7 @@ import java.util.TreeMap;
 import java.util.logging.Level;
 
 public class Parse {
-    public void parse(String url) throws IOException {
+    public Map<String, Item> parse(String url) throws IOException {
         try (FileWriter out_file = new FileWriter("statistic.txt", true)){
             String[] listOfSeparators = {" ", ",", "'", ".", "!", "?", "(", ")", "[", "]", ";", ":", "«", "»", "—", "/", "©", "%", "\"", "\n", "\r", "\t"};
             ScanURL scanURL = new ScanURL();
@@ -47,20 +47,19 @@ public class Parse {
             }
             reader.close();
 
-            sortByABC(wordsMap);
-            sortByCount(wordsMap);
-
             Date date = new Date();
             SimpleDateFormat formatDate = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
             out_file.append(formatDate.format(date));
             out_file.append(" — парсинг: " + url);
             out_file.append(" — количество уникальных слов: " + wordsMap.size() + "\n");
-            Main.LOGGER.log(Level.INFO, "Конец работы парсера (остановка приложения) \n");
+            Logger.LOGGER.log(Level.INFO, "Конец работы парсера (остановка приложения) \n");
+            return wordsMap;
         } catch (NullPointerException e)
         {
             System.out.println("\n Не получен URL-адрес, повторите попытку снова ");
-            Main.LOGGER.log(Level.WARNING,"Не получен URL-адрес (" + url + ") ");
+            Logger.LOGGER.log(Level.WARNING,"Не получен URL-адрес (" + url + ") ");
         }
+        return null;
     }
 
     public void sortByABC(Map map){
