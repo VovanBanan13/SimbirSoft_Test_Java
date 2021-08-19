@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -75,5 +76,22 @@ public class Parse {
         sorted.sort((a, b) -> (b.getValue().getCount() - a.getValue().getCount()));
         for ( Map.Entry<String, Item> sort : sorted )
             System.out.println(sort.getKey() + " - " + sort.getValue().getCount());
+    }
+
+    public List createSortByABC(Map map){
+        TreeMap<String, Item> sort = new TreeMap<>(map);
+        List arrList = new ArrayList();
+        for (Map.Entry<String, Item> entry : sort.entrySet())
+            arrList.add(entry.getKey() + " - " + entry.getValue().getCount());
+        return arrList;
+    }
+
+    public List createSortByCount(Map map){
+        List<Map.Entry<String, Item>> sorted = new LinkedList<Map.Entry<String, Item>>(map.entrySet());
+        sorted.sort((a, b) -> (b.getValue().getCount() - a.getValue().getCount()));
+        List arrList = new ArrayList();
+        for ( Map.Entry<String, Item> sort : sorted )
+            arrList.add(sort.getKey() + " - " + sort.getValue().getCount());
+        return arrList;
     }
 }
